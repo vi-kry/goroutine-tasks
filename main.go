@@ -3,78 +3,34 @@ package main
 import (
 	"fmt"
 	"sync"
+	"time"
 )
 
-// 1.Параллельная обработка слайса чисел:
-// Есть слайс чисел, и нужно параллельно вычислить сумму, минимум и максимум этого слайса.
-// Т.е три горутины которые используют один слайс
+// 2. Горутины для вывода сообщений
+// messages := []string{"Привет", "Здравствуй", "Приветствую"}
+// Есть слайс, надо вывести каждое сообщение в отдельной горутине через n секунд,
+// где n это индекс сообщения в слайсе. При проверки я могу добавлять в слайс элементы или убирать
+
+func printMsg(s string, t int) {
+	
+
+	secs := time.Duration(t)
+	time.Sleep(secs * time.Second)
+	fmt.Printf("%s was printed after %d seconds\n", s, t)
+}
 
 func main() {
-	nums := []int{2, 1, 5, 4, 3}
-
+	messages := []string{"Привет", "Здравствуй", "Приветствую","a","dasda","dasdasddddddddd"}
 	var wg sync.WaitGroup
 
-	wg.Add(3)
+	wg.Add(len(messages))
 
-	go func() {
-		defer wg.Done()
-		findSum(nums)
-	}()
-
-	go func() {
-		defer wg.Done()
-		findMin(nums)
-	}()
-
-	go func() {
-		defer wg.Done()
-		findMax(nums)
-	}()
+	for i, m := range messages {
+		go func(i int, m string){
+			defer wg.Done()
+			printMsg(m, i)
+		}(i, m)
+	}
 
 	wg.Wait()
-
-}
-
-func findSum(nums []int) {
-
-	var sum int
-
-	for _, n := range nums {
-		sum += n
-	}
-	fmt.Printf("sum = %d\n", sum)
-}
-
-func findMin(nums []int) {
-
-	min := nums[0]
-
-	if len(nums) == 0 {
-		min = -1
-	}
-
-	for _, n := range nums {
-		if n < min {
-			min = n
-		}
-	}
-
-	fmt.Printf("min = %d\n", min)
-}
-
-func findMax(nums []int) {
-
-	max := nums[0]
-
-	if len(nums) == 0 {
-		max = -1
-	}
-
-	for _, n := range nums {
-		if n > max {
-			max = n
-		}
-	}
-
-	fmt.Printf("max = %d\n", max)
 }
